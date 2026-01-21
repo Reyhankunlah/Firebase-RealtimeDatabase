@@ -9,4 +9,5 @@ class AppRoutes {
   static const tablePremiere = '/tablePremiere';
   static const contactPage = '/contactPage';
   static const exTransform = '/exTransform';
+  static const listmakananPage = '/listmakananPage';
 }
