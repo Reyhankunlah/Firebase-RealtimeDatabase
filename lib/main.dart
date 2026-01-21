@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: AppRoutes.tablePremiere,
+      initialRoute: AppRoutes.listmakananPage,
       getPages: AppPages.pages,
     );
   }

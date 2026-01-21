@@ -5,6 +5,7 @@ import 'package:tugas1_11pplg2/Binding/editPlayerBinding.dart';
 import 'package:tugas1_11pplg2/Binding/example_binding.dart';
 import 'package:tugas1_11pplg2/Binding/footballPlayerBinding.dart';
 import 'package:tugas1_11pplg2/Binding/loginPageBinding.dart';
+import 'package:tugas1_11pplg2/Binding/menu_makanan_binding.dart';
 import 'package:tugas1_11pplg2/Binding/navigationBinding.dart';
 import 'package:tugas1_11pplg2/Binding/profileBinding.dart';
 import 'package:tugas1_11pplg2/Binding/splashScreenBinding.dart';
@@ -15,6 +16,7 @@ import 'package:tugas1_11pplg2/Pages/editplayer_page.dart';
 import 'package:tugas1_11pplg2/Pages/ex_feature/ex_transform.dart';
 import 'package:tugas1_11pplg2/Pages/footballPlayer_pages.dart';
 import 'package:tugas1_11pplg2/Pages/login_page.dart';
+import 'package:tugas1_11pplg2/Pages/menu_list_makanan.dart';
 import 'package:tugas1_11pplg2/Pages/nav/mainNavigationPage.dart';
 import 'package:tugas1_11pplg2/Pages/profile_page.dart';
 import 'package:tugas1_11pplg2/Pages/splashScreen_pages.dart';
@@ -76,6 +78,11 @@ class AppPages {
       name: AppRoutes.contactPage,
       page: () => ContactPage(),
       binding: Contactbinding(),
+    ),
+    GetPage(
+      name: AppRoutes.listmakananPage,
+      page: () => MenuListMakanan(),
+      binding: MenuMakananBinding(),
     ),
   ];
 }
