@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:tugas1_11pplg2/Controllers/else/footballPlayer_controller.dart';
 import 'package:tugas1_11pplg2/Routes/routes.dart';
 
-class FootballplayerPages extends StatelessWidget {
-  FootballplayerPages({super.key});
+class ExMobile extends StatelessWidget {
+  ExMobile({super.key});
 
   final cntrlFootballPlayer = Get.find<FootballplayerController>();
 

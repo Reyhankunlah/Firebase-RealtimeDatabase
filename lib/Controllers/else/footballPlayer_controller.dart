@@ -40,7 +40,7 @@ class FootballplayerController extends GetxController {
     String? name,
     String? position,
     int? number,
-    String? photo, // <- bisa update foto juga
+    String? photo,
   }) {
     final current = players[index];
     players[index] = current.copyWith(

@@ -2,34 +2,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tugas1_11pplg2/Controllers/nav/navigation_controller.dart';
+import 'package:tugas1_11pplg2/Pages/nav/sideDrawerPage.dart';
 
-class Btmnavigationpage extends StatelessWidget {
-  Btmnavigationpage({super.key});
+class BtmNavigationPage extends StatelessWidget {
+  BtmNavigationPage({super.key});
 
-  NavigationController navigationController = Get.put(NavigationController());
+  final NavigationController navigationController =
+      Get.find<NavigationController>();
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Scaffold(
-        body: IndexedStack(
-          index: navigationController.selectedIndex.value,
-          children: navigationController.pages,
+    return BottomNavigationBar(
+      currentIndex: navigationController.selectedIndex.value,
+      onTap: navigationController.changeIndex,
+      type: BottomNavigationBarType.fixed,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.calculate), label: 'Calc'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.sports_soccer),
+          label: 'Squad',
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: navigationController.selectedIndex.value,
-          onTap: navigationController.changeIndex,
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.calculate), label: 'Calc'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.sports_soccer),
-              label: 'Squad',
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }

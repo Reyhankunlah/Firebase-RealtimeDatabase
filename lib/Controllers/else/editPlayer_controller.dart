@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tugas1_11pplg2/Controllers/footballplayer_controller.dart';
+import 'package:tugas1_11pplg2/Controllers/else/footballPlayer_controller.dart';
 
 class EditplayerController extends GetxController {
   final nameC = TextEditingController();

@@ -4,12 +4,12 @@ import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:tugas1_11pplg2/Components/custom_button.dart';
 import 'package:tugas1_11pplg2/Components/custom_input.dart';
-import 'package:tugas1_11pplg2/Controllers/editPlayer_controller.dart';
+import 'package:tugas1_11pplg2/Controllers/else/editPlayer_controller.dart';
 
 class EditplayerPage extends StatelessWidget {
   EditplayerPage({super.key});
 
-  EditplayerController edtPlayerController = Get.put(EditplayerController());
+  final edtPlayerController = Get.put(EditplayerController());
 
   @override
   Widget build(BuildContext context) {

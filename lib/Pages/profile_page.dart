@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:tugas1_11pplg2/Components/custom_button.dart';
+import 'package:tugas1_11pplg2/Components/custom_color.dart';
 import 'package:tugas1_11pplg2/Components/custom_text.dart';
+import 'package:tugas1_11pplg2/Controllers/API/loginAPI_controller.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  final cLogPage = Get.find<LoginapiController>();
+  ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +45,12 @@ class ProfilePage extends StatelessWidget {
 
               // Text Absens
               const CustomText(myText: "Absen : 22", align: TextAlign.center),
+
+              CustomButton(
+                myText: "LOGOUT",
+                myTextColor: CustomColor.black,
+                onPressed: cLogPage.logout,
+              ),
             ],
           ),
         ),
