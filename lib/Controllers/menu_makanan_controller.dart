@@ -1,4 +1,6 @@
+import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,12 +12,13 @@ class MenuMakananController extends GetxController {
   var makananList = <MapEntry<String, ItemMakanan>>[].obs;
   var errorMessage = ''.obs;
 
-  final String baseUrl = 'https://flutterpushtest-1d5f7-default-rtdb.asia-southeast1.firebasedatabase.app';
+  final String baseUrl =
+      'https://flutterpushtest-1d5f7-default-rtdb.asia-southeast1.firebasedatabase.app';
 
   @override
   void onInit() {
     super.onInit();
-    fetchMakanan(); 
+    fetchMakanan();
   }
 
   Future<void> fetchMakanan() async {
@@ -23,17 +26,16 @@ class MenuMakananController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final response = await http.get(
-        Uri.parse('$baseUrl/.json'),
-      );
+      final response = await http.get(Uri.parse('$baseUrl/.json'));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
+
         final makananResponse = MakananResponse.fromJson(jsonData);
-        
+
         makananList.value = makananResponse.toList();
-        
-        print('Total makanan berhasil dimuat: ${makananList.length}');
+
+        print('Total makanan: ${makananList.length}');
       } else {
         errorMessage.value = 'Gagal memuat data: ${response.statusCode}';
       }
@@ -45,13 +47,20 @@ class MenuMakananController extends GetxController {
     }
   }
 
-  Future<void> createMakanan(String nama, int harga) async {
+  Future<void> createMakanan(
+    String nama,
+    int harga,
+    int stok,
+    String imageUrl,
+  ) async {
     try {
       isLoading.value = true;
 
       final newData = {
         'nama_makanan': nama,
         'harga_makanan': harga,
+        'stock_makanan': stok,
+        'image_address': imageUrl,
       };
 
       final response = await http.post(
@@ -79,19 +88,26 @@ class MenuMakananController extends GetxController {
         'Terjadi kesalahan: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
-      print('Error create makanan: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> updateMakanan(String id, String nama, int harga) async {
+  Future<void> updateMakanan(
+    String id,
+    String nama,
+    int harga,
+    int stok,
+    String imageUrl,
+  ) async {
     try {
       isLoading.value = true;
 
       final updateData = {
         'nama_makanan': nama,
         'harga_makanan': harga,
+        'stock_makanan': stok,
+        'image_address': imageUrl,
       };
 
       final response = await http.patch(
@@ -119,10 +135,94 @@ class MenuMakananController extends GetxController {
         'Terjadi kesalahan: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
-      print('Error update makanan: $e');
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void confirmDeleteMakanan(String id, String namaMakanan) {
+    const Color gojekGreen = Color(0xFFC04848);
+    Get.defaultDialog(
+      title: 'Hapus Menu',
+      radius: 20,
+      content: Column(
+        children: [
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              children: [
+                const TextSpan(text: 'Yakin ingin menghapus menu '),
+                TextSpan(
+                  text: '"$namaMakanan"',
+                  style: const TextStyle(
+                    color: gojekGreen,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const TextSpan(text: '?\nTindakan ini tidak bisa dibatalkan.'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          /// BUTTON ROW
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // BATAL
+              OutlinedButton(
+                onPressed: () => Get.back(),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: gojekGreen),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10), // AGAK KOTAK
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 12,
+                  ),
+                ),
+                child: const Text(
+                  'Batal',
+                  style: TextStyle(
+                    color: gojekGreen,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              // HAPUS
+              ElevatedButton(
+                onPressed: () async {
+                  Get.back();
+                  await deleteMakanan(id);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: gojekGreen,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10), // AGAK KOTAK
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 12,
+                  ),
+                ),
+                child: const Text(
+                  'Hapus',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> deleteMakanan(String id) async {
@@ -153,7 +253,6 @@ class MenuMakananController extends GetxController {
         'Terjadi kesalahan: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
-      print('Error delete makanan: $e');
     } finally {
       isLoading.value = false;
     }

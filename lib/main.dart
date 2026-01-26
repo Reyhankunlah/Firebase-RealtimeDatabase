@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       initialBinding: Appbinding(),
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white70),
       ),
       initialRoute: AppRoutes.listmakananPage,
       getPages: AppPages.pages,
