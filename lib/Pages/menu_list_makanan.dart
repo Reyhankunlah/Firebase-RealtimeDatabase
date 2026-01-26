@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tugas1_11pplg2/Components/custom_Form.dart';
 import 'package:tugas1_11pplg2/Components/custom_card.dart';
 import 'package:tugas1_11pplg2/Controllers/menu_makanan_controller.dart';
 
@@ -26,6 +27,22 @@ class MenuListMakanan extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+
+      /// ================= FLOATING ADD BUTTON =================
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFC04848),
+        elevation: 4,
+        onPressed: () {
+          // TODO: arahkan ke halaman tambah menu
+          // contoh:
+          Get.dialog(CustomForm());
+          print('Add Menu Clicked');
+        },
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
+      /// =======================================================
       body: Column(
         children: [
           Container(
@@ -46,9 +63,7 @@ class MenuListMakanan extends StatelessWidget {
               child: Obx(() {
                 if (controller.isLoading.value) {
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFFC04848),
-                    ),
+                    child: CircularProgressIndicator(color: Color(0xFFC04848)),
                   );
                 }
 
@@ -73,7 +88,7 @@ class MenuListMakanan extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () => controller.fetchMakanan(),
+                          onPressed: controller.fetchMakanan,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFC04848),
                           ),
@@ -111,7 +126,10 @@ class MenuListMakanan extends StatelessWidget {
                   onRefresh: controller.refreshMakanan,
                   color: const Color(0xFFC04848),
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
                     itemCount: controller.makananList.length,
                     itemBuilder: (context, index) {
                       final entry = controller.makananList[index];
@@ -122,15 +140,18 @@ class MenuListMakanan extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 16),
                         child: MenuCard(
                           menuTitle: item.namaMakanan,
-                          description: 'Description',
+                          description: 'Stok tersedia: ${item.stok}',
                           price: item.formattedPrice,
-                          stock: 0,
-                          imageUrl: null,
+                          stock: item.stok,
+                          imageUrl: item.imageAddress,
                           onAddPressed: () {
                             print('Add pressed for ${item.namaMakanan}');
                           },
                           onDeletePressed: () {
-                            print('Delete pressed for ${item.namaMakanan}');
+                            controller.confirmDeleteMakanan(
+                              id,
+                              item.namaMakanan,
+                            );
                           },
                         ),
                       );
