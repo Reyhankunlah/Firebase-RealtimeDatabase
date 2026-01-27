@@ -56,6 +56,20 @@ class MenuMakananController extends GetxController {
     try {
       isLoading.value = true;
 
+      // AMBIL ID TERBESAR
+      int maxIndex = 0;
+      for (var entry in makananList) {
+        final key = entry.key; // contoh: m1, m2, m10
+        if (key.startsWith('m')) {
+          final number = int.tryParse(key.substring(1)) ?? 0;
+          if (number > maxIndex) {
+            maxIndex = number;
+          }
+        }
+      }
+
+      final newId = 'm${maxIndex + 1}';
+
       final newData = {
         'nama_makanan': nama,
         'harga_makanan': harga,
@@ -63,15 +77,15 @@ class MenuMakananController extends GetxController {
         'image_address': imageUrl,
       };
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/makanan.json'),
+      final response = await http.put(
+        Uri.parse('$baseUrl/makanan/$newId.json'),
         body: json.encode(newData),
       );
 
       if (response.statusCode == 200) {
         Get.snackbar(
           'Berhasil',
-          'Makanan berhasil ditambahkan',
+          'Makanan berhasil ditambahkan ($newId)',
           snackPosition: SnackPosition.BOTTOM,
         );
         await fetchMakanan();

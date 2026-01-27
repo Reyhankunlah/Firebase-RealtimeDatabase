@@ -25,28 +25,20 @@ class MenuListMakanan extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
-      /// ================= FLOATING ADD BUTTON =================
+      /// FLOATING ADD BUTTON
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFFC04848),
-        elevation: 4,
         onPressed: () {
-          // TODO: arahkan ke halaman tambah menu
-          // contoh:
-          Get.dialog(CustomForm());
-          print('Add Menu Clicked');
+          Get.dialog(CustomForm()); // ADD MODE
         },
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
-      /// =======================================================
       body: Column(
         children: [
           Container(
-            width: double.infinity,
             height: 20,
             decoration: const BoxDecoration(
               color: Color(0xFFC04848),
@@ -58,108 +50,52 @@ class MenuListMakanan extends StatelessWidget {
           ),
 
           Expanded(
-            child: Transform.translate(
-              offset: const Offset(0, 10),
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFFC04848)),
-                  );
-                }
-
-                if (controller.errorMessage.value.isNotEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          color: Colors.red,
-                          size: 60,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          controller.errorMessage.value,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: controller.fetchMakanan,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFC04848),
-                          ),
-                          child: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (controller.makananList.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.restaurant_menu,
-                          color: Colors.grey,
-                          size: 60,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Belum ada menu',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: controller.refreshMakanan,
-                  color: const Color(0xFFC04848),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    itemCount: controller.makananList.length,
-                    itemBuilder: (context, index) {
-                      final entry = controller.makananList[index];
-                      final id = entry.key;
-                      final item = entry.value;
-
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: MenuCard(
-                          menuTitle: item.namaMakanan,
-                          description: 'Stok tersedia: ${item.stok}',
-                          price: item.formattedPrice,
-                          stock: item.stok,
-                          imageUrl: item.imageAddress,
-                          onAddPressed: () {
-                            print('Add pressed for ${item.namaMakanan}');
-                          },
-                          onDeletePressed: () {
-                            controller.confirmDeleteMakanan(
-                              id,
-                              item.namaMakanan,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFFC04848)),
                 );
-              }),
-            ),
+              }
+
+              if (controller.makananList.isEmpty) {
+                return const Center(child: Text('Belum ada menu'));
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                itemCount: controller.makananList.length,
+                itemBuilder: (context, index) {
+                  final entry = controller.makananList[index];
+                  final id = entry.key;
+                  final item = entry.value;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: MenuCard(
+                      menuTitle: item.namaMakanan,
+                      description: 'Stok tersedia: ${item.stok}',
+                      price: item.formattedPrice,
+                      imageUrl: item.imageAddress,
+
+                      /// EDIT
+                      onEditPressed: () {
+                        Get.dialog(
+                          CustomForm(isEdit: true, id: id, makanan: item),
+                        );
+                      },
+
+                      /// DELETE
+                      onDeletePressed: () {
+                        controller.confirmDeleteMakanan(id, item.namaMakanan);
+                      },
+                    ),
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),
