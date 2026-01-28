@@ -30,10 +30,7 @@ class MenuListMakanan extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const CustomRoundedHeader(
-            color: CustomColor.primary,
-            height: 20,
-          ),
+          const CustomRoundedHeader(color: CustomColor.primary, height: 20),
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
@@ -57,8 +54,7 @@ class MenuListMakanan extends StatelessWidget {
                     horizontal: 32,
                     vertical: 24,
                   ),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
@@ -77,19 +73,12 @@ class MenuListMakanan extends StatelessWidget {
                       imageUrl: item.imageAddress,
                       onEditPressed: () {
                         Get.dialog(
-                          CustomForm(
-                            isEdit: true,
-                            id: id,
-                            makanan: item,
-                          ),
+                          CustomForm(isEdit: true, id: id, makanan: item),
                           barrierDismissible: false,
                         );
                       },
                       onDeletePressed: () {
-                        controller.confirmDeleteMakanan(
-                          id,
-                          item.namaMakanan,
-                        );
+                        controller.confirmDeleteMakanan(id, item.namaMakanan);
                       },
                     );
                   },
@@ -116,19 +105,12 @@ class MenuListMakanan extends StatelessWidget {
                       imageUrl: item.imageAddress,
                       onEditPressed: () {
                         Get.dialog(
-                          CustomForm(
-                            isEdit: true,
-                            id: id,
-                            makanan: item,
-                          ),
+                          CustomForm(isEdit: true, id: id, makanan: item),
                           barrierDismissible: false,
                         );
                       },
                       onDeletePressed: () {
-                        controller.confirmDeleteMakanan(
-                          id,
-                          item.namaMakanan,
-                        );
+                        controller.confirmDeleteMakanan(id, item.namaMakanan);
                       },
                     ),
                   );

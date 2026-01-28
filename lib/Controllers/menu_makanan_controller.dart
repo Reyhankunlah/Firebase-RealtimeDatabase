@@ -1,10 +1,8 @@
-import 'dart:ui';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-
+import 'package:sqflite/sqflite.dart';
 import 'package:tugas1_11pplg2/Models/menu_makanan_model.dart';
 
 class MenuMakananController extends GetxController {
@@ -15,142 +13,34 @@ class MenuMakananController extends GetxController {
   final String baseUrl =
       'https://flutterpushtest-1d5f7-default-rtdb.asia-southeast1.firebasedatabase.app';
 
+  // ================= TEXT CONTROLLERS =================
+  final namaController = TextEditingController();
+  final hargaController = TextEditingController();
+  final stokController = TextEditingController();
+  final imageController = TextEditingController();
+
+  // ================= LIFECYCLE =================
   @override
   void onInit() {
     super.onInit();
     fetchMakanan();
   }
 
-  Future<void> fetchMakanan() async {
-    try {
-      isLoading.value = true;
-      errorMessage.value = '';
-
-      final response = await http.get(Uri.parse('$baseUrl/.json'));
-
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-
-        final makananResponse = MakananResponse.fromJson(jsonData);
-
-        makananList.value = makananResponse.toList();
-
-        print('Total makanan: ${makananList.length}');
-      } else {
-        errorMessage.value = 'Gagal memuat data: ${response.statusCode}';
-      }
-    } catch (e) {
-      errorMessage.value = 'Error: $e';
-      print('Error fetch makanan: $e');
-    } finally {
-      isLoading.value = false;
-    }
+  @override
+  void onClose() {
+    namaController.dispose();
+    hargaController.dispose();
+    stokController.dispose();
+    imageController.dispose();
+    super.onClose();
   }
 
-  Future<void> createMakanan(
-    String nama,
-    int harga,
-    int stok,
-    String imageUrl,
-  ) async {
-    try {
-      isLoading.value = true;
-
-      int maxIndex = 0;
-      for (var entry in makananList) {
-        final key = entry.key;
-        if (key.startsWith('m')) {
-          final number = int.tryParse(key.substring(1)) ?? 0;
-          if (number > maxIndex) {
-            maxIndex = number;
-          }
-        }
-      }
-
-      final newId = 'm${maxIndex + 1}';
-
-      final newData = {
-        'nama_makanan': nama,
-        'harga_makanan': harga,
-        'stock_makanan': stok,
-        'image_address': imageUrl,
-      };
-
-      final response = await http.put(
-        Uri.parse('$baseUrl/makanan/$newId.json'),
-        body: json.encode(newData),
-      );
-
-      if (response.statusCode == 200) {
-        Get.snackbar(
-          'Berhasil',
-          'Makanan berhasil ditambahkan ($newId)',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        await fetchMakanan();
-      } else {
-        Get.snackbar(
-          'Gagal',
-          'Gagal menambahkan makanan',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Terjadi kesalahan: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> updateMakanan(
-    String id,
-    String nama,
-    int harga,
-    int stok,
-    String imageUrl,
-  ) async {
-    try {
-      isLoading.value = true;
-
-      final updateData = {
-        'nama_makanan': nama,
-        'harga_makanan': harga,
-        'stock_makanan': stok,
-        'image_address': imageUrl,
-      };
-
-      final response = await http.patch(
-        Uri.parse('$baseUrl/makanan/$id.json'),
-        body: json.encode(updateData),
-      );
-
-      if (response.statusCode == 200) {
-        Get.snackbar(
-          'Berhasil',
-          'Makanan berhasil diupdate',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        await fetchMakanan();
-      } else {
-        Get.snackbar(
-          'Gagal',
-          'Gagal mengupdate makanan',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Terjadi kesalahan: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
+  // ================= FORM =================
+  void fillForm(ItemMakanan makanan) {
+    namaController.text = makanan.namaMakanan;
+    hargaController.text = makanan.hargaMakanan.toString();
+    stokController.text = makanan.stok.toString();
+    imageController.text = makanan.imageAddress;
   }
 
   void confirmDeleteMakanan(String id, String namaMakanan) {
@@ -208,7 +98,7 @@ class MenuMakananController extends GetxController {
               ElevatedButton(
                 onPressed: () async {
                   Get.back();
-                  await deleteMakanan(id);
+                  await deleteDatabase(id);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: gojekGreen,
@@ -235,132 +125,109 @@ class MenuMakananController extends GetxController {
     );
   }
 
-  Future<void> deleteMakanan(String id) async {
+  void clearForm() {
+    namaController.clear();
+    hargaController.clear();
+    stokController.clear();
+    imageController.clear();
+  }
+
+  void handleSubmitForm({required bool isEdit, String? id}) {
+    final nama = namaController.text.trim();
+    final hargaText = hargaController.text.trim();
+    final stokText = stokController.text.trim();
+    final imageUrl = imageController.text.trim();
+
+    if (nama.isEmpty) return _showError('Nama makanan harus diisi!');
+    if (hargaText.isEmpty) return _showError('Harga harus diisi!');
+    if (stokText.isEmpty) return _showError('Stok harus diisi!');
+    if (imageUrl.isEmpty) return _showError('URL gambar harus diisi!');
+
+    final harga = int.tryParse(hargaText);
+    final stok = int.tryParse(stokText);
+
+    if (harga == null || harga <= 0) {
+      return _showError('Harga harus angka positif!');
+    }
+    if (stok == null || stok < 0) {
+      return _showError('Stok harus ≥ 0!');
+    }
+    if (!imageUrl.startsWith('http')) {
+      return _showError('URL harus diawali http/https');
+    }
+
+    if (isEdit) {
+      updateMakanan(id!, nama, harga, stok, imageUrl);
+    } else {
+      createMakanan(nama, harga, stok, imageUrl);
+    }
+
+    clearForm();
+    Get.back();
+  }
+
+  // ================= API =================
+  Future<void> fetchMakanan() async {
     try {
       isLoading.value = true;
-
-      final response = await http.delete(
-        Uri.parse('$baseUrl/makanan/$id.json'),
-      );
-
+      final response = await http.get(Uri.parse('$baseUrl/.json'));
       if (response.statusCode == 200) {
-        Get.snackbar(
-          'Berhasil',
-          'Makanan berhasil dihapus',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        await fetchMakanan();
-      } else {
-        Get.snackbar(
-          'Gagal',
-          'Gagal menghapus makanan',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        final jsonData = json.decode(response.body);
+        makananList.value = MakananResponse.fromJson(jsonData).toList();
       }
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Terjadi kesalahan: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> refreshMakanan() async {
-    await fetchMakanan();
-  }
-void handleSubmitForm({
-  required bool isEdit,
-  String? id,
-  required String nama,
-  required String hargaText,
-  required String stokText,
-  required String imageUrl,
-}) {
-  // VALIDASI INPUT
-  if (nama.trim().isEmpty) {
-    _showError('Nama makanan harus diisi!');
-    return;
-  }
-
-  if (hargaText.trim().isEmpty) {
-    _showError('Harga harus diisi!');
-    return;
-  }
-
-  if (stokText.trim().isEmpty) {
-    _showError('Stok harus diisi!');
-    return;
-  }
-
-  if (imageUrl.trim().isEmpty) {
-    _showError('URL gambar harus diisi!');
-    return;
-  }
-
-  final harga = int.tryParse(hargaText);
-  final stok = int.tryParse(stokText);
-
-  if (harga == null || harga <= 0) {
-    _showError('Harga harus berupa angka positif!');
-    return;
-  }
-
-  if (stok == null || stok < 0) {
-    _showError('Stok harus berupa angka positif atau nol!');
-    return;
-  }
-
-  if (!imageUrl.startsWith('http')) {
-    _showError('URL gambar harus diawali http:// atau https://');
-    return;
-  }
-
-  // PANGGIL METHOD LAMA (TIDAK DIUBAH)
-  if (isEdit) {
-    updateMakanan(
-      id!,
-      nama.trim(),
-      harga,
-      stok,
-      imageUrl.trim(),
+  Future<void> createMakanan(
+    String nama,
+    int harga,
+    int stok,
+    String imageUrl,
+  ) async {
+    final newId = 'm${makananList.length + 1}';
+    await http.put(
+      Uri.parse('$baseUrl/makanan/$newId.json'),
+      body: json.encode({
+        'nama_makanan': nama,
+        'harga_makanan': harga,
+        'stock_makanan': stok,
+        'image_address': imageUrl,
+      }),
     );
-  } else {
-    createMakanan(
-      nama.trim(),
-      harga,
-      stok,
-      imageUrl.trim(),
+    fetchMakanan();
+  }
+
+  Future<void> updateMakanan(
+    String id,
+    String nama,
+    int harga,
+    int stok,
+    String imageUrl,
+  ) async {
+    await http.patch(
+      Uri.parse('$baseUrl/makanan/$id.json'),
+      body: json.encode({
+        'nama_makanan': nama,
+        'harga_makanan': harga,
+        'stock_makanan': stok,
+        'image_address': imageUrl,
+      }),
+    );
+    fetchMakanan();
+  }
+
+  // ================= UI =================
+  void _showError(String message) {
+    Get.snackbar(
+      'Error',
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
     );
   }
-
-  Get.back();
 }
-
-void _showError(String message) {
-  Get.snackbar(
-    'Error',
-    message,
-    snackPosition: SnackPosition.TOP,
-    backgroundColor: Colors.red,
-    colorText: Colors.white,
-    margin: const EdgeInsets.all(16),
-    borderRadius: 12,
-  );
-}
-
-void _showSuccess(String message) {
-  Get.snackbar(
-    'Berhasil',
-    message,
-    snackPosition: SnackPosition.TOP,
-    backgroundColor: Colors.green,
-    colorText: Colors.white,
-    margin: const EdgeInsets.all(16),
-    borderRadius: 12,
-  );
-}
-}
-
