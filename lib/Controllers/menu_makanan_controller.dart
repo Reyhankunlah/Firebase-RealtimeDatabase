@@ -2,13 +2,17 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:sqflite/sqflite.dart';
+import 'package:tugas1_11pplg2/Components/custom_Form.dart';
 import 'package:tugas1_11pplg2/Models/menu_makanan_model.dart';
 
 class MenuMakananController extends GetxController {
+  // ================= STATE =================
   var isLoading = false.obs;
   var makananList = <MapEntry<String, ItemMakanan>>[].obs;
-  var errorMessage = ''.obs;
+
+  // ===== FORM STATE =====
+  var isEdit = false.obs;
+  String? editingId;
 
   final String baseUrl =
       'https://flutterpushtest-1d5f7-default-rtdb.asia-southeast1.firebasedatabase.app';
@@ -35,94 +39,26 @@ class MenuMakananController extends GetxController {
     super.onClose();
   }
 
-  // ================= FORM =================
+  // ================= FORM HANDLER =================
+  void openAddForm() {
+    isEdit.value = false;
+    editingId = null;
+    clearForm();
+    Get.dialog(const CustomForm(), barrierDismissible: false);
+  }
+
+  void openEditForm(String id, ItemMakanan makanan) {
+    isEdit.value = true;
+    editingId = id;
+    fillForm(makanan);
+    Get.dialog(const CustomForm(), barrierDismissible: false);
+  }
+
   void fillForm(ItemMakanan makanan) {
     namaController.text = makanan.namaMakanan;
     hargaController.text = makanan.hargaMakanan.toString();
     stokController.text = makanan.stok.toString();
     imageController.text = makanan.imageAddress;
-  }
-
-  void confirmDeleteMakanan(String id, String namaMakanan) {
-    const Color gojekGreen = Color(0xFFC04848);
-    Get.defaultDialog(
-      title: 'Hapus Menu',
-      radius: 20,
-      content: Column(
-        children: [
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
-              children: [
-                const TextSpan(text: 'Yakin ingin menghapus menu '),
-                TextSpan(
-                  text: '"$namaMakanan"',
-                  style: const TextStyle(
-                    color: gojekGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const TextSpan(text: '?\nTindakan ini tidak bisa dibatalkan.'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              OutlinedButton(
-                onPressed: () => Get.back(),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: gojekGreen),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text(
-                  'Batal',
-                  style: TextStyle(
-                    color: gojekGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              ElevatedButton(
-                onPressed: () async {
-                  Get.back();
-                  await deleteDatabase(id);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: gojekGreen,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text(
-                  'Hapus',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 
   void clearForm() {
@@ -132,7 +68,7 @@ class MenuMakananController extends GetxController {
     imageController.clear();
   }
 
-  void handleSubmitForm({required bool isEdit, String? id}) {
+  void submitForm() {
     final nama = namaController.text.trim();
     final hargaText = hargaController.text.trim();
     final stokText = stokController.text.trim();
@@ -156,8 +92,8 @@ class MenuMakananController extends GetxController {
       return _showError('URL harus diawali http/https');
     }
 
-    if (isEdit) {
-      updateMakanan(id!, nama, harga, stok, imageUrl);
+    if (isEdit.value) {
+      updateMakanan(editingId!, nama, harga, stok, imageUrl);
     } else {
       createMakanan(nama, harga, stok, imageUrl);
     }
@@ -218,6 +154,44 @@ class MenuMakananController extends GetxController {
     fetchMakanan();
   }
 
+  // ================= DELETE =================
+  void confirmDeleteMakanan(String id, String namaMakanan) {
+    const Color danger = Color(0xFFC04848);
+
+    Get.defaultDialog(
+      title: 'Hapus Menu',
+      radius: 20,
+      content: Column(
+        children: [
+          Text(
+            'Yakin ingin menghapus "$namaMakanan"?\nTindakan ini tidak bisa dibatalkan.',
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              OutlinedButton(
+                onPressed: () => Get.back(),
+                child: const Text('Batal'),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: danger),
+                onPressed: () async {
+                  Get.back();
+                  await http.delete(Uri.parse('$baseUrl/makanan/$id.json'));
+                  fetchMakanan();
+                },
+                child: const Text('Hapus'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   // ================= UI =================
   void _showError(String message) {
     Get.snackbar(
@@ -226,8 +200,6 @@ class MenuMakananController extends GetxController {
       snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.red,
       colorText: Colors.white,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
     );
   }
 }
