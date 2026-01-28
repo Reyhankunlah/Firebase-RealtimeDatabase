@@ -8,6 +8,7 @@ import 'package:tugas1_11pplg2/Components/custom_empty_state.dart';
 import 'package:tugas1_11pplg2/Components/custom_rounded_header.dart';
 import 'package:tugas1_11pplg2/Components/custom_color.dart';
 import 'package:tugas1_11pplg2/Controllers/menu_makanan_controller.dart';
+import 'package:tugas1_11pplg2/Controllers/responsive_layout_controller.dart';
 
 class MenuListMakanan extends StatelessWidget {
   const MenuListMakanan({super.key});
@@ -15,9 +16,7 @@ class MenuListMakanan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<MenuMakananController>();
-
-    final size = MediaQuery.of(context).size;
-    final isTablet = size.width >= 600;
+    final responsive = Get.find<ResponsiveController>();
 
     return Scaffold(
       backgroundColor: CustomColor.greyBackground,
@@ -63,7 +62,7 @@ class MenuListMakanan extends StatelessWidget {
                 );
               }
 
-              return isTablet
+              return responsive.isTablet
                   ? GridView.builder(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40,
