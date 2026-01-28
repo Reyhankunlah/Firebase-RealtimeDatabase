@@ -11,12 +11,7 @@ class CustomForm extends StatelessWidget {
   final String? id;
   final ItemMakanan? makanan;
 
-  CustomForm({
-    super.key,
-    this.isEdit = false,
-    this.id,
-    this.makanan,
-  });
+  CustomForm({super.key, this.isEdit = false, this.id, this.makanan});
 
   final namaController = TextEditingController();
   final hargaController = TextEditingController();
@@ -36,9 +31,7 @@ class CustomForm extends StatelessWidget {
     }
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -234,7 +227,6 @@ class CustomForm extends StatelessWidget {
     );
   }
 
-  /// SHOW SUCCESS SNACKBAR
   void _showSuccess(String message) {
     Get.snackbar(
       'Berhasil',
@@ -242,7 +234,10 @@ class CustomForm extends StatelessWidget {
       snackPosition: SnackPosition.TOP,
       backgroundColor: CustomColor.success,
       colorText: CustomColor.textWhite,
-      icon: const Icon(Icons.check_circle_outline, color: CustomColor.textWhite),
+      icon: const Icon(
+        Icons.check_circle_outline,
+        color: CustomColor.textWhite,
+      ),
       duration: const Duration(seconds: 2),
       margin: const EdgeInsets.all(16),
       borderRadius: 12,

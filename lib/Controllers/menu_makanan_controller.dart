@@ -56,10 +56,9 @@ class MenuMakananController extends GetxController {
     try {
       isLoading.value = true;
 
-      // AMBIL ID TERBESAR
       int maxIndex = 0;
       for (var entry in makananList) {
-        final key = entry.key; // contoh: m1, m2, m10
+        final key = entry.key;
         if (key.startsWith('m')) {
           final number = int.tryParse(key.substring(1)) ?? 0;
           if (number > maxIndex) {
@@ -180,17 +179,15 @@ class MenuMakananController extends GetxController {
           ),
           const SizedBox(height: 20),
 
-          /// BUTTON ROW
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // BATAL
               OutlinedButton(
                 onPressed: () => Get.back(),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: gojekGreen),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // AGAK KOTAK
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 22,
@@ -208,7 +205,6 @@ class MenuMakananController extends GetxController {
 
               const SizedBox(width: 12),
 
-              // HAPUS
               ElevatedButton(
                 onPressed: () async {
                   Get.back();
@@ -217,7 +213,7 @@ class MenuMakananController extends GetxController {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: gojekGreen,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // AGAK KOTAK
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 22,
