@@ -34,7 +34,7 @@ class MenuCard extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           /// IMAGE
           CircleAvatar(
@@ -52,6 +52,7 @@ class MenuCard extends StatelessWidget {
           /// TEXT CONTENT
           Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// TITLE
@@ -96,17 +97,21 @@ class MenuCard extends StatelessWidget {
           const SizedBox(width: 12),
 
           /// ACTION BUTTONS
-          Column(
-            children: [
-              _icon(Icons.edit, onEditPressed),
-              const SizedBox(height: 12),
-              _icon(
-                Icons.delete,
-                onDeletePressed,
-                bg: const Color(0xFFC04747),
-                color: Colors.white,
-              ),
-            ],
+          Align(
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _icon(Icons.edit, onEditPressed),
+                const SizedBox(height: 12),
+                _icon(
+                  Icons.delete,
+                  onDeletePressed,
+                  bg: const Color(0xFFC04747),
+                  color: Colors.white,
+                ),
+              ],
+            ),
           ),
         ],
       ),
