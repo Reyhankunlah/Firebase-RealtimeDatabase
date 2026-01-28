@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tugas1_11pplg2/Models/menu_makanan_model.dart';
 
 class MenuCard extends StatelessWidget {
   final String menuTitle;
@@ -8,7 +7,6 @@ class MenuCard extends StatelessWidget {
   final VoidCallback? onEditPressed;
   final VoidCallback? onDeletePressed;
   final String? imageUrl;
-  final ItemMakanan? makanan;
 
   const MenuCard({
     super.key,
@@ -18,13 +16,12 @@ class MenuCard extends StatelessWidget {
     this.onEditPressed,
     this.onDeletePressed,
     this.imageUrl,
-    this.makanan,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 163,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -36,45 +33,54 @@ class MenuCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// IMAGE
-          Positioned(
-            left: 16,
-            top: 32,
-            child: CircleAvatar(
-              radius: 50,
-              backgroundImage: imageUrl != null
-                  ? NetworkImage(imageUrl!)
-                  : null,
-              backgroundColor: Colors.grey[300],
-              child: imageUrl == null
-                  ? const Icon(Icons.restaurant, size: 40)
-                  : null,
-            ),
+          CircleAvatar(
+            radius: 40,
+            backgroundImage:
+                imageUrl != null ? NetworkImage(imageUrl!) : null,
+            backgroundColor: Colors.grey[300],
+            child: imageUrl == null
+                ? const Icon(Icons.restaurant, size: 32)
+                : null,
           ),
 
-          /// TEXT
-          Positioned(
-            left: 130,
-            top: 42,
-            right: 80,
+          const SizedBox(width: 16),
+
+          /// TEXT CONTENT
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// TITLE
                 Text(
                   menuTitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+
                 const SizedBox(height: 6),
+
+                /// DESCRIPTION
                 Text(
                   description,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
                 ),
-                const SizedBox(height: 8),
+
+                const SizedBox(height: 10),
+
+                /// PRICE
                 Text(
                   price,
                   style: const TextStyle(
@@ -87,23 +93,20 @@ class MenuCard extends StatelessWidget {
             ),
           ),
 
-          /// EDIT (KANAN ATAS)
-          Positioned(
-            right: 16,
-            top: 16,
-            child: _icon(Icons.edit, onEditPressed),
-          ),
+          const SizedBox(width: 12),
 
-          /// DELETE (KANAN BAWAH)
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: _icon(
-              Icons.delete,
-              onDeletePressed,
-              bg: const Color(0xFFC04747),
-              color: Colors.white,
-            ),
+          /// ACTION BUTTONS
+          Column(
+            children: [
+              _icon(Icons.edit, onEditPressed),
+              const SizedBox(height: 12),
+              _icon(
+                Icons.delete,
+                onDeletePressed,
+                bg: const Color(0xFFC04747),
+                color: Colors.white,
+              ),
+            ],
           ),
         ],
       ),

@@ -16,6 +16,9 @@ class MenuListMakanan extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<MenuMakananController>();
 
+    final size = MediaQuery.of(context).size;
+    final isTablet = size.width >= 600;
+
     return Scaffold(
       backgroundColor: CustomColor.greyBackground,
       appBar: const CustomAppbar(
@@ -31,7 +34,6 @@ class MenuListMakanan extends StatelessWidget {
         },
         child: const Icon(Icons.add, color: CustomColor.textWhite),
       ),
-
       body: Column(
         children: [
           const CustomRoundedHeader(
@@ -45,6 +47,7 @@ class MenuListMakanan extends StatelessWidget {
                   message: 'Memuat menu...',
                 );
               }
+
               if (controller.makananList.isEmpty) {
                 return CustomEmptyState(
                   message: 'Belum ada menu',
@@ -60,37 +63,87 @@ class MenuListMakanan extends StatelessWidget {
                 );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                itemCount: controller.makananList.length,
-                itemBuilder: (context, index) {
-                  final entry = controller.makananList[index];
-                  final id = entry.key;
-                  final item = entry.value;
+              return isTablet
+                  ? GridView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 24,
+                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 3 / 2,
+                      ),
+                      itemCount: controller.makananList.length,
+                      itemBuilder: (context, index) {
+                        final entry = controller.makananList[index];
+                        final id = entry.key;
+                        final item = entry.value;
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: MenuCard(
-                      menuTitle: item.namaMakanan,
-                      description: 'Stok tersedia: ${item.stok}',
-                      price: item.formattedPrice,
-                      imageUrl: item.imageAddress,
-                      onEditPressed: () {
-                        Get.dialog(
-                          CustomForm(isEdit: true, id: id, makanan: item),
-                          barrierDismissible: false,
+                        return MenuCard(
+                          menuTitle: item.namaMakanan,
+                          description: 'Stok tersedia: ${item.stok}',
+                          price: item.formattedPrice,
+                          imageUrl: item.imageAddress,
+                          onEditPressed: () {
+                            Get.dialog(
+                              CustomForm(
+                                isEdit: true,
+                                id: id,
+                                makanan: item,
+                              ),
+                              barrierDismissible: false,
+                            );
+                          },
+                          onDeletePressed: () {
+                            controller.confirmDeleteMakanan(
+                              id,
+                              item.namaMakanan,
+                            );
+                          },
                         );
                       },
-                      onDeletePressed: () {
-                        controller.confirmDeleteMakanan(id, item.namaMakanan);
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      itemCount: controller.makananList.length,
+                      itemBuilder: (context, index) {
+                        final entry = controller.makananList[index];
+                        final id = entry.key;
+                        final item = entry.value;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: MenuCard(
+                            menuTitle: item.namaMakanan,
+                            description: 'Stok tersedia: ${item.stok}',
+                            price: item.formattedPrice,
+                            imageUrl: item.imageAddress,
+                            onEditPressed: () {
+                              Get.dialog(
+                                CustomForm(
+                                  isEdit: true,
+                                  id: id,
+                                  makanan: item,
+                                ),
+                                barrierDismissible: false,
+                              );
+                            },
+                            onDeletePressed: () {
+                              controller.confirmDeleteMakanan(
+                                id,
+                                item.namaMakanan,
+                              );
+                            },
+                          ),
+                        );
                       },
-                    ),
-                  );
-                },
-              );
+                    );
             }),
           ),
         ],
